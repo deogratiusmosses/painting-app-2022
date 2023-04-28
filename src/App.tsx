@@ -3,13 +3,17 @@ import {
   Routes, // instead of "Switch"
   Route,
 } from 'react-router-dom'
-import Home from './Router/Home'
+
 
 import React, { useEffect, useState } from 'react'
 import 'react-circular-progressbar/dist/styles.css'
 
 import Auth from './Router/Auth'
 import { auth } from './firebase'
+
+import 'react-circular-progressbar/dist/styles.css'
+import Home from './Router/Home'
+
 
 function App() {
   // const [isLoggedIn, setIsLoggedIn] = useState(false)

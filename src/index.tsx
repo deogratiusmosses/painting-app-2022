@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import { createGlobalStyle } from 'styled-components'
+import { RecoilRoot } from 'recoil'
 
 
 const GlobalStyles = createGlobalStyle`
@@ -24,6 +25,7 @@ time, mark, audio, video {
 	font-size: 100%;
 	font: inherit;
 	vertical-align: baseline;
+	color: white;
 }
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure, 
@@ -32,7 +34,7 @@ footer, header, hgroup, menu, nav, section {
 }
 body {
 	line-height: 1;
-  background: #191919;
+  background: rgba(0, 0, 0, 0.87);
   height: 100vh;
 }
 ol, ul {
@@ -55,7 +57,9 @@ table {
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
   <React.StrictMode>
-    <GlobalStyles />
-    <App />
+    <RecoilRoot>
+      <GlobalStyles />
+      <App />
+    </RecoilRoot>
   </React.StrictMode>
 )
