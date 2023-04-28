@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { motion, AnimatePresence } from 'framer-motion'
 // import {} from 'react-toggle-button'
@@ -12,26 +12,34 @@ import {
   faBell,
 } from '@fortawesome/free-solid-svg-icons'
 
-export const Wrapper = styled.div`
+import {
+  buildStyles,
+  CircularProgressbarWithChildren,
+} from 'react-circular-progressbar'
+import 'react-circular-progressbar/dist/styles.css'
+
+import { useTimer } from 'react-timer-hook'
+
+const Wrapper = styled.div`
   display: flex;
   justify-content: space-between;
   width: 100%;
   height: 100vh;
 `
 
-export const Title = styled.div`
+const Title = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
 `
-export const LeftContainer = styled.div`
+const LeftContainer = styled.div`
   width: 5%;
   height: 100vh;
   display: flex;
   flex-direction: column;
 `
-export const LeftNav = styled(motion.nav)`
+const LeftNav = styled(motion.nav)`
   background-color: #404258;
   width: 80px;
   height: 100vh;
@@ -40,7 +48,7 @@ export const LeftNav = styled(motion.nav)`
   flex-direction: column;
 `
 
-export const NavOptionCarrier = styled.div`
+const NavOptionCarrier = styled.div`
   margin-top: 65px;
   width: 75px;
   height: 80%;
@@ -48,7 +56,7 @@ export const NavOptionCarrier = styled.div`
   align-items: center;
   flex-direction: column;
 `
-export const NavOption = styled.div`
+const NavOption = styled.div`
   margin-bottom: 30px;
   width: 75px;
   height: 50px;
@@ -57,14 +65,14 @@ export const NavOption = styled.div`
   flex-direction: column;
   align-items: center;
 `
-export const Navtext = styled.span`
+const Navtext = styled.span`
   color: gainsboro;
   margin-top: 5px;
   font-size: 14px;
   font-weight: 500;
 `
 
-export const NavIcon = styled.i`
+const NavIcon = styled.i`
   margin-top: 5px;
   width: 40px;
   height: 40px;
@@ -74,12 +82,12 @@ export const NavIcon = styled.i`
   color: gainsboro;
 `
 
-export const LeftContainerBtnContainer = styled.div`
+const LeftContainerBtnContainer = styled.div`
   width: 5%;
   height: 100px;
 `
 
-// export const LeftContainerBtn = styled.button`
+// const LeftContainerBtn = styled.button`
 //   width: 5%;
 //   height: 30px;
 //   background-color: white;
@@ -91,24 +99,23 @@ export const LeftContainerBtnContainer = styled.div`
 //   left: 0;
 // `
 
-export const CenterContainer = styled.div`
+const CenterContainer = styled.div`
   width: 50%;
   height: 100vh;
   display: flex;
   flex-direction: column;
 `
-export const CenterContainerClock = styled.div`
+const CenterContainerClock = styled.div`
   width: 100%;
   height: 30vh;
-  border-radius: 50%;
 `
-export const RightContainer = styled.div`
+const RightContainer = styled.div`
   width: 20%;
   height: 100vh;
   display: flex;
   align-items: end;
 `
-export const RightContainerData = styled.div`
+const RightContainerData = styled.div`
   width: 100%;
   height: 30vh;
   display: flex;
@@ -117,7 +124,7 @@ export const RightContainerData = styled.div`
   gap: 20px;
   padding: 30px;
 `
-export const RightContainerDataBtn = styled.button`
+const RightContainerDataBtn = styled.button`
   width: 100px;
   height: 30px;
   background-color: transparent;
@@ -157,6 +164,42 @@ const SwitchDataInfo = styled.span`
   color: white;
 `
 
+function MyTimer({
+  days,
+  hours,
+  minutes,
+  seconds,
+  isRunning,
+  start,
+  pause,
+  resume,
+  restart,
+}: any) {
+  return (
+    <div style={{ textAlign: 'center' }}>
+      <h1>react-timer-hook </h1>
+      <p>Timer Demo</p>
+      <div style={{ fontSize: '100px' }}>
+        <span>{days}</span>:<span>{hours}</span>:<span>{minutes}</span>:
+        <span>{seconds}</span>
+      </div>
+      <p>{isRunning ? 'Running' : 'Not running'}</p>
+      <button onClick={start}>Start</button>
+      <button onClick={pause}>Pause</button>
+      <button onClick={resume}>Resume</button>
+      <button
+        onClick={() => {
+          // Restarts to 5 minutes timer
+          const time = new Date()
+          time.setSeconds(time.getSeconds() + 300)
+          restart(time)
+        }}>
+        Restart
+      </button>
+    </div>
+  )
+}
+
 function Home() {
   const [toggle, setToggle] = useState(false)
   const toggleSwitch = () => setToggle((prev) => !prev)
@@ -164,6 +207,42 @@ function Home() {
   const toggleAlarm = () => setAlarm((prev) => !prev)
   const [showing, setShowing] = useState(true)
   const toggleShowing = () => setShowing((prev) => !prev)
+
+  const expiryTimestamp = new Date()
+  const {
+    seconds,
+    minutes,
+    hours,
+    days,
+    isRunning,
+    start,
+    pause,
+    resume,
+    restart,
+  } = useTimer({
+    expiryTimestamp,
+    onExpire: () => {
+      console.warn('onExpire called')
+    },
+  })
+
+  const [totalTime, setTotalTime] = useState(0)
+  console.log('Total Seconds', totalTime)
+
+  const [currentTime, setCurrentTime] = useState(0)
+  console.log('Current Time', currentTime)
+
+  const [percentage, setPercentage] = useState(0)
+  console.log('Percentege', percentage)
+
+  useEffect(() => {
+    setCurrentTime(minutes * 60 + seconds)
+    setPercentage((currentTime / totalTime) * 100)
+    if (!isRunning) {
+      setPercentage(0)
+    }
+  }, [seconds, minutes])
+
   return (
     <Wrapper>
       <LeftContainer>
@@ -209,7 +288,59 @@ function Home() {
       </LeftContainer>
       <CenterContainer>
         <Title>TimeMate</Title>
-        <CenterContainerClock></CenterContainerClock>
+        <CenterContainerClock>
+          <div>
+            <header>
+              <span>0min</span>
+              <input
+                type="range"
+                min={0}
+                step={60}
+                max={600}
+                onChange={(event) => {
+                  console.log('Input Value', event.target.value)
+                  setPercentage(100)
+                  const time = new Date()
+                  time.setSeconds(time.getSeconds() + +event.target.value)
+                  restart(time)
+                  //setTotalTime(minutes * 60 + seconds)
+                  setTotalTime(+event.target.value)
+                  setCurrentTime(+event.target.value)
+                }}
+              />
+              <span>10min</span>
+              <div style={{ backgroundColor: 'aqua', width: 200 }}>
+                <CircularProgressbarWithChildren
+                  strokeWidth={50}
+                  counterClockwise={true}
+                  value={percentage}
+                  styles={buildStyles({
+                    backgroundColor: 'red',
+                    pathColor: 'red',
+                    textColor: '#f88',
+                    trailColor: '#d6d6d6',
+                    textSize: '16px',
+                    rotation: 0.25,
+                    strokeLinecap: 'butt',
+                  })}></CircularProgressbarWithChildren>
+              </div>
+
+              <div>
+                <MyTimer
+                  minutes={minutes}
+                  seconds={seconds}
+                  isRunning={isRunning}
+                  start={start}
+                  pause={pause}
+                  resume={resume}
+                  restart={restart}
+                  hours={hours}
+                  days={days}
+                />
+              </div>
+            </header>
+          </div>
+        </CenterContainerClock>
       </CenterContainer>
       <RightContainer>
         <RightContainerData>
