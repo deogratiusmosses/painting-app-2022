@@ -3,17 +3,9 @@ import {
   Routes, // instead of "Switch"
   Route,
 } from 'react-router-dom'
-import Home from './Router/Home'
-
-import React, { useEffect, useState } from 'react'
-import {
-  buildStyles,
-  CircularProgressbarWithChildren,
-} from 'react-circular-progressbar'
+import React from 'react'
 import 'react-circular-progressbar/dist/styles.css'
-
-import { useTimer } from 'react-timer-hook'
-import { getAuth } from 'firebase/auth'
+import Home from './Router/Home'
 
 function App() {
   return (
