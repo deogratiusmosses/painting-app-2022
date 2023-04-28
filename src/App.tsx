@@ -6,21 +6,38 @@ import {
 import Home from './Router/Home'
 
 import React, { useEffect, useState } from 'react'
-import {
-  buildStyles,
-  CircularProgressbarWithChildren,
-} from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 
-import { useTimer } from 'react-timer-hook'
-import { getAuth } from 'firebase/auth'
+import Auth from './Router/Auth'
+import { auth } from './firebase'
 
 function App() {
+  // const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [init, setInit] = useState(false)
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        setIsLoggedIn(false)
+      } else {
+        setIsLoggedIn(false)
+      }
+      setInit(true)
+    })
+  }, [])
+
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
+          {isLoggedIn ? (
+            <>
+              <Route path="/" element={<Home />} />
+            </>
+          ) : (
+            <Route path="/" element={<Auth />}></Route>
+          )}
+          {/* {init ? <Route path="/" element={<Home />} /> : 'initializing...'} */}
         </Routes>
       </BrowserRouter>
     </>
