@@ -8,9 +8,11 @@ import {
   faLanguage,
   faBell,
   faAngleLeft,
+  faSignOut,
 } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react'
 import TimeSettings from './nav-components/TimeSettings'
+import { auth } from '../firebase'
 
 const LeftNav = styled(motion.nav)`
   position: relative;
@@ -68,6 +70,7 @@ interface NavigationProps {
 function Navigation({ showing, setShowing }: NavigationProps) {
   const toggleShowing = () => setShowing((prev) => !prev)
   const [isTimeOption, setIsTimeOption] = useState(false)
+  const onLogoutClick = () => auth.signOut()
 
   const [moreNavOptions, setMoreNavOptions] = useState(false)
   return (
@@ -108,6 +111,14 @@ function Navigation({ showing, setShowing }: NavigationProps) {
               <FontAwesomeIcon icon={faBell} color="white" />
               <Navtext>Notification</Navtext>
             </NavOption>
+            <NavOption>
+              <FontAwesomeIcon
+                icon={faSignOut}
+                color="white"
+                onClick={onLogoutClick}
+              />
+              <Navtext>Sign Out</Navtext>
+            </NavOption>
           </NavOptionCarrier>
           {moreNavOptions && (
             <LeftNavSettings
@@ -132,3 +143,5 @@ function Navigation({ showing, setShowing }: NavigationProps) {
 }
 
 export default Navigation
+
+

@@ -1,16 +1,22 @@
-import { env, eventNames } from 'process'
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import {
+  AuthProvider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
+  GoogleAuthProvider,
 } from 'firebase/auth'
+
 import { auth, firebaseInstance } from '../firebase'
-import App from '../App'
+
+import { motion, AnimatePresence } from 'framer-motion'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faVoicemail } from '@fortawesome/free-solid-svg-icons'
+import {
+  faGoogle,
+
+} from '@fortawesome/free-brands-svg-icons'
 
 const Background = styled.div`
   width: 430px;
@@ -85,13 +91,18 @@ const FormInput = styled.input`
   font-weight: 300;
   color: white;
   margin-bottom: 30px;
+  ::placeholder {
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+  }
 `
 
-const FormLoginBtn = styled.button`
+const FormLoginBtn = styled.input`
   margin-top: 50px;
   width: 100%;
-  background-color: #ffffff;
-  color: #080710;
+  background-color: rgba(255, 255, 255, 0.27);
+  color: white;
   padding: 15px 0;
   font-size: 18px;
   font-weight: 600;
@@ -101,17 +112,38 @@ const FormLoginBtn = styled.button`
   margin-bottom: 40px;
   cursor: pointer;
 `
-const FormSocialLoginBtn = styled.div`
-  background: red;
+const FormSocialLoginBtn = styled.div<{ name: string }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  /* background: red; */
   width: 150px;
-  border-radius: 3px;
+  border-radius: 10px;
   padding: 5px 10px 10px 5px;
   background-color: rgba(255, 255, 255, 0.27);
   color: #eaf0fb;
   text-align: center;
+  cursor: pointer;
+
+  :hover {
+    box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 1px, rgba(0, 0, 0, 0.07) 0px 2px 2px,
+      rgba(0, 0, 0, 0.07) 0px 4px 4px, rgba(0, 0, 0, 0.07) 0px 8px 8px,
+      rgba(0, 0, 0, 0.07) 0px 16px 16px;
+    border: 2px solid white;
+    transition-delay: 2s ease-in-out;
+  }
+`
+const FormSocialLoginSpan = styled.span`
+  font-size: 19px;
+  margin-left: -10px;
+  color: white;
 `
 
-const Auth = () => {
+interface ILogInProp {
+  loggedIn:(isLoggedIn: boolean) => void;
+}
+
+const Auth = ({ loggedIn }: ILogInProp) => {
   const [email, setEmail] = useState()
   const [password, setPassword] = useState()
   const [newAccount, setNewAccount] = useState(true)
@@ -132,78 +164,40 @@ const Auth = () => {
     event.preventDefault()
 
     try {
-      // @ts-ignore
-      createUserWithEmailAndPassword(auth, email, password).then(
-        (userCredential) => {
-          const user = userCredential.user
-          console.log(user)
-        }
-      )
+      if (newAccount) {
+        // @ts-ignore
+        await createUserWithEmailAndPassword(auth, email, password).then(
+          (userCredential) => {
+            const user = userCredential.user
+            console.log(user)
+          }
+        )
+      } else {
+        // @ts-ignore
+        await signInWithEmailAndPassword(auth, email, password).then(
+          (userCredential) => {
+            const user = userCredential.user
+            console.log(user)
+          }
+        )
+      }
     } catch (error: any) {
       setError(error.message)
     }
-
-    /*  // @ts-ignore
-      signInWithEmailAndPassword(auth, email, password).then(
-        (userCredential) => {
-          const user = userCredential.user
-          console.log(user)
-        }
-      ) */
   }
   const toggleAccount = () => setNewAccount((prev) => !prev)
-  const onSocialClick = async (event: any) => {
-    // const {
-    //   target: { name },
-    // } = event
-    // let provider
-    // if (name === 'google') {
-    //   provider = new firebaseInstance.auth.GoogleAuthProvider()
-    // }
-    // const data = await signInWithPopup(auth, provider)
-  }
+  const SocialLogin = async (event: any) => {
+    const {
+      target: { name },
+    } = event
+    console.log(name)
 
-  // return (
-  //   <LoginWrapper>
-  //     <LoginContents>
-  //       <LoginContentsForm>
-  //         <LoginForm onSubmit={onSubmit}>
-  //           <>
-  //             <LoginInputs
-  //               type="text"
-  //               name="email"
-  //               placeholder="Sign Up With Your Email"
-  //               value={email}
-  //               onChange={onFormChange}
-  //               required
-  //             />
-  //           </>
-  //           <LoginInputs
-  //             type="password"
-  //             name="password"
-  //             placeholder="Enter Your Password"
-  //             value={password}
-  //             onChange={onFormChange}
-  //             required
-  //           />
-  //           <LoginBtn
-  //             type="submit"
-  //             value={newAccount ? 'Create Account' : 'Log In'}
-  //           />
-  //           {error}
-  //         </LoginForm>
-  //         {/* <LoginBtn onClick={toggleAccount}>
-  //           {newAccount ? 'Log In' : 'Create Account'}
-  //         </LoginBtn> */}
-  //         <div>
-  //           <SocialLoginBtn onClick={onSocialClick} name="google">
-  //             Google
-  //           </SocialLoginBtn>
-  //         </div>
-  //       </LoginContentsForm>
-  //     </LoginContents>
-  //   </LoginWrapper>
-  // )
+    let provider: AuthProvider
+    provider = new GoogleAuthProvider()
+
+    const data = await signInWithPopup(auth, provider!)
+    console.log(data)
+  }
 
   return (
     <>
@@ -211,7 +205,7 @@ const Auth = () => {
         <Shape />
         <ShapeB />
       </Background>
-      <Form>
+      <Form onSubmit={onSubmit}>
         <FormHeader>Login Here</FormHeader>
         <FormInput
           type="text"
@@ -220,7 +214,6 @@ const Auth = () => {
           value={email}
           onChange={onFormChange}
           required
-          id="inputId"
         />
         <FormInput
           type="password"
@@ -229,12 +222,17 @@ const Auth = () => {
           value={password}
           onChange={onFormChange}
           required
-          id="inputId"
         />
-        <FormLoginBtn type="submit" value={'login'}>
-          Log In
-        </FormLoginBtn>
-        <FormSocialLoginBtn>Google</FormSocialLoginBtn>
+        <FormLoginBtn
+          type="submit"
+          value={newAccount ? 'Create A New Account' : 'Login'}
+        />
+        <AnimatePresence>
+          <FormSocialLoginBtn onClick={SocialLogin} name="google">
+            <FontAwesomeIcon icon={faGoogle} color="white" size="2x" />
+            <FormSocialLoginSpan>Google</FormSocialLoginSpan>
+          </FormSocialLoginBtn>
+        </AnimatePresence>
       </Form>
     </>
   )
